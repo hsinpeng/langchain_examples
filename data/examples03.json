@@ -1,0 +1,7 @@
+[
+    {"input": "happy", "output": "sad"},
+    {"input": "tall", "output": "short"},
+    {"input": "energetic", "output": "lethargic"},
+    {"input": "sunny", "output": "gloomy"},
+    {"input": "windy", "output": "calm"}
+]

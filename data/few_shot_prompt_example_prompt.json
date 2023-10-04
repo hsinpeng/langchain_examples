@@ -1,0 +1,8 @@
+{
+  "_type": "few_shot",
+  "input_variables": ["adjective"],
+  "prefix": "Write antonyms for the following words.",
+  "example_prompt_path": "./data/example_prompt.json",
+  "examples": "./data/examples.json",
+  "suffix": "Input: {adjective}\nOutput:"
+}   

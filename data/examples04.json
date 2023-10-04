@@ -1,0 +1,5 @@
+[
+    {"input": "See Spot run.", "output": "Ver correr a Spot."},
+    {"input": "My dog barks.", "output": "Mi perro ladra."},
+    {"input": "Spot can run.", "output": "Spot puede correr."}
+]
