@@ -33,7 +33,7 @@ Note: Before using this project, you have to set and get these parameter from Az
 python3 -m pip install --no-cache-dir -U pip
 python3 -m pip install --no-cache-dir -U openai
 python3 -m pip install --no-cache-dir -U langchain
-python3 -m pip install --no-cache-dir -U charomadb
+python3 -m pip install --no-cache-dir -U chromadb
 python3 -m pip install --no-cache-dir -U tiktoken
 python3 -m pip install --no-cache-dir -U faiss-cpu
 python3 -m pip install --no-cache-dir -U nltk

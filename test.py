@@ -14,7 +14,7 @@ from langchain.chat_models import AzureChatOpenAI
 from langchain.schema import HumanMessage, AIMessage, SystemMessage
 from langchain.schema.document import Document
 from langchain.schema.output_parser import StrOutputParser
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import AzureOpenAIEmbeddings
 from langchain.prompts.prompt import PromptTemplate
 from langchain.prompts.few_shot import FewShotPromptTemplate
 from langchain.prompts.example_selector import (
@@ -70,7 +70,7 @@ from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMP
 from langchain.chains.router.embedding_router import EmbeddingRouterChain
 
 ###### User Define Parameters ######
-test_option = 0
+test_option = 6
 test_phrase = "Who is the director of dark knight?"
 ####################################
         
@@ -95,7 +95,7 @@ def main():
                 ##### Just Test #####
                 print("Hello LangChain!")
                 print(azure_apikey, azure_apibase, azure_apitype, azure_apiversion, azure_gptx_deployment, azure_embd_deployment)
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase, temperature=0.9)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0.9)
                 #prompt = PromptTemplate(
                 #    input_variables=["product"],
                 #    template="What is a good name for a company that makes {product}?",
@@ -136,12 +136,12 @@ def main():
                     print("Error: Mission Impossible!")
             case 3:
                 ##### Test #3: LangChain LLMs #####
-                llm = AzureOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase)
+                llm = AzureOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase)
                 print(f"INPUT: {test_phrase}")
                 print("OUTPUT: ", llm.predict(test_phrase))
             case 4:
                 ##### Test #4: LangChain ChatModels #####
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase)
                 msg = HumanMessage(content=test_phrase)
                 #print(chatllm(messages=[msg]))
                 print(f"INPUT: {test_phrase}")
@@ -153,7 +153,7 @@ def main():
                 f.close()
                 #print(examples_01)
                 
-                embdllm = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)
+                embdllm = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)
                 print(f"INPUT: {examples_01[0]}")
                 print("OUTPUT: ", embdllm.embed_documents(examples_01[0]))
             case 6:
@@ -170,7 +170,7 @@ def main():
                     # This is the list of examples available to select from.
                     examples_01,
                     # This is the embedding class used to produce embeddings which are used to measure semantic similarity.
-                    OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase),
+                    AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase),
                     # This is the VectorStore class that is used to store the embeddings and do a similarity search over.
                     Chroma,
                     # This is the number of examples to produce.
@@ -202,7 +202,7 @@ def main():
 
                 to_vectorize = [" ".join(example.values()) for example in examples_02]
                 #print(to_vectorize)
-                embeddings = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)
+                embeddings = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)
                 vectorstore = Chroma.from_texts(to_vectorize, embeddings, metadatas=examples_02)
                 example_selector = SemanticSimilarityExampleSelector(
                     vectorstore=vectorstore,
@@ -234,7 +234,7 @@ def main():
                     ]
                 )
 
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase)
                 msg = final_prompt.format_messages(input=test_phrase)
                 print("INPIUT: ", msg)
                 print("OUTPUT: ", chatllm.predict_messages(messages=msg).content)
@@ -297,7 +297,7 @@ def main():
                 print(f"(3) Pipeline prompts OUTPUT: {msg}")
             case 9:
                 ##### Test #9: Types of MessagePromptTemplate #####
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase)
 
                 # Type 0 The most commonly used are AIMessagePromptTemplate, SystemMessagePromptTemplate and HumanMessagePromptTemplate, 
                 # which create an AI message, system message and human message respectively.
@@ -385,7 +385,7 @@ def main():
                     + "{input}"
                 )
                 print("\n(2-1) Chat prompt pipelining OUTPUT: ", new_prompt.format_messages(input="i said hi"))
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase)
                 chain = LLMChain(llm=chatllm, prompt=new_prompt)
                 print("\n(2-2) Chat model OUTPUT: ", chain.run("i said hi"))
             case 12:
@@ -435,7 +435,7 @@ def main():
                     # The list of examples available to select from.
                     examples_03,
                     # The embedding class used to produce embeddings which are used to measure semantic similarity.
-                    OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase),
+                    AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase),
                     # The VectorStore class that is used to store the embeddings and do a similarity search over.
                     FAISS,
                     # The number of examples to produce.
@@ -457,7 +457,7 @@ def main():
                     # The list of examples available to select from.
                     examples_03,
                     # The embedding class used to produce embeddings which are used to measure semantic similarity.
-                    OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase),
+                    AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase),
                     # The VectorStore class that is used to store the embeddings and do a similarity search over.
                     FAISS,
                     # The number of examples to produce.
@@ -533,7 +533,7 @@ def main():
                 print('\n(1) LLMs OUTPUT: Cannot work with GPT-4!')
 
                 # Type 2 Chat Models: "chat messages" are the inputs and outputs.
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase) #, cache=False)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase) #, cache=False)
                 messages = [
                     SystemMessage(content="You are a helpful assistant that translates English to Chinese."),
                     HumanMessage(content=test_phrase)
@@ -573,7 +573,7 @@ def main():
             case 14:
                 ##### Test #14: Output parsers #####
                 # List parser, Datetime parser, Enum parser, Auto-fixing parser, Pydantic (JSON) parser, Retry parser, Structured output parser, XML parser
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase, temperature=0) #, cache=False)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0) #, cache=False)
                 # Type 1  Auto-fixing parser
                 #actor_query = "Generate the filmography for a random actor."
                 parser = PydanticOutputParser(pydantic_object=Actor)
@@ -653,7 +653,7 @@ def main():
                 # Note: When models must access relevant information in the middle of long contexts, they tend to ignore the provided documents. To avoid this issue you can re-order documents after retrieval to avoid performance degradation.
                 
                 # Type 3 Text embedding models
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
                 embeddings = embeddings_model.embed_documents(
                     [
                         "Hi there!",
@@ -708,14 +708,14 @@ def main():
 
             case 16:
                 ##### Test #16: Question Answering Retriever #####
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
                 loader = TextLoader('./data/state_of_the_union.txt', encoding='utf8')
                 documents = loader.load()
                 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
                 texts = text_splitter.split_documents(documents) # Split the documents into chunks
                 db = Chroma.from_documents(texts, embeddings_model) # Create the vector store to use as the index.                
                 retriever = db.as_retriever() # Expose this index in a retriever interface.                
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase)
                 qa = RetrievalQA.from_chain_type(llm=chatllm, chain_type="stuff", retriever=retriever)
                 query = "What did the president say about Ketanji Brown Jackson"
                 print("\nRetrievalQA OUTPUT: ", qa.run(query))
@@ -734,10 +734,10 @@ def main():
                 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
                 splits = text_splitter.split_documents(data)
                 # VectorDB
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
                 vectordb = Chroma.from_documents(documents=splits, embedding=embeddings_model)
                 # Chat model
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase, temperature=0)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0)
                 question = "What are the approaches to Task Decomposition?"
                 # Set logging for the queries
                 logging.basicConfig()
@@ -785,8 +785,8 @@ def main():
             case 19:
                 ##### Test #19: Contextual compression #####
                 # Compressing retrieved documents by using the context of the given query. (Needs a base retriever and a document compressor)
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase, temperature=0)
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0)
                 question = "What did the president say about Ketanji Jackson Brown"
                 # Retrieve documents
                 documents = TextLoader('./data/state_of_the_union.txt', encoding='utf8').load()
@@ -842,7 +842,7 @@ def main():
                 # initialize the bm25 retriever and faiss retriever
                 bm25_retriever = BM25Retriever.from_texts(doc_list)
                 bm25_retriever.k = 2
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
                 faiss_vectorstore = FAISS.from_texts(doc_list, embeddings_model)
                 faiss_retriever = faiss_vectorstore.as_retriever(search_kwargs={"k": 2})
 
@@ -856,8 +856,8 @@ def main():
                 # (1) Smaller chunks: split a document into smaller chunks, and embed those (this is ParentDocumentRetriever).
                 # (2) Summary: create a summary for each document, embed that along with (or instead of) the document.
                 # (3) Hypothetical questions: create hypothetical questions that each document would be appropriate to answer, embed those along with (or instead of) the document.
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase, temperature=0, max_retries=0, model="gpt-4")
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0, max_retries=0, model="gpt-4")
 
                 loaders = [
                     TextLoader('./data/paul_graham_essay.txt', encoding='utf8'),
@@ -983,7 +983,7 @@ def main():
                 ##### Test #24 and #25: Parent Document Retriever #####
                 # ParentDocumentRetriever first fetches the small chunks but then looks up the parent ids for those chunks and returns those larger documents.
                 # The "parent document" refers to the document that a small chunk originated from.
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
                 loaders = [
                     TextLoader('./data/paul_graham_essay.txt', encoding='utf8'),
                     TextLoader('./data/state_of_the_union.txt', encoding='utf8'),
@@ -1040,7 +1040,7 @@ def main():
             case 26:
                 ##### Test #26: Self-querying #####
                 # The retriever uses a "query-constructing LLM chain" to write a structured query and then applies that structured query to its underlying VectorStore.
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
                 docs = [
                     Document(
                         page_content="A bunch of scientists bring back dinosaurs and mayhem breaks loose",
@@ -1097,7 +1097,7 @@ def main():
                     ),
                 ]
                 document_content_description = "Brief summary of a movie"
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase, temperature=0)
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0)
                 retriever = SelfQueryRetriever.from_llm(
                     chatllm,
                     vectorstore,
@@ -1135,7 +1135,7 @@ def main():
             case 27:
                 ##### Test #27: Time-weighted vector store retriever #####
                 # Define your embedding model
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
                 #chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase, temperature=0, max_retries=0, model="gpt-4")
 
                 # Initialize the vectorstore as empty
@@ -1174,8 +1174,8 @@ def main():
                     _pretty_print_docs(retrieved_docs)
             case 28:
                 ##### Test #28: Router #####
-                embeddings_model = OpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, openai_api_base=azure_apibase)             
-                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, openai_api_base=azure_apibase, temperature=0, max_retries=0)
+                embeddings_model = AzureOpenAIEmbeddings(deployment=azure_embd_deployment, openai_api_key=azure_apikey, openai_api_version=azure_apiversion, openai_api_type=azure_apitype, azure_endpoint=azure_apibase)             
+                chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0, max_retries=0)
 
                 physics_template = """You are a very smart physics professor. \
                 You are great at answering questions about physics in a concise and easy to understand manner. \
