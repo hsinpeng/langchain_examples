@@ -70,7 +70,7 @@ from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMP
 from langchain.chains.router.embedding_router import EmbeddingRouterChain
 
 ###### User Define Parameters ######
-test_option = 6
+test_option = 20
 test_phrase = "Who is the director of dark knight?"
 ####################################
         

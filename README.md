@@ -39,7 +39,8 @@ python3 -m pip install --no-cache-dir -U faiss-cpu
 python3 -m pip install --no-cache-dir -U nltk
 python3 -m pip install --no-cache-dir -U wikipedia
 python3 -m pip install --no-cache-dir -U rank_bm25
-python3 -m pip install --no-cache-dir -U lark 
+python3 -m pip install --no-cache-dir -U lark
+python3 -m pip install --no-cache-dir -U "langserve[all]"
 ```
 
 5. The main program is 'test.py', check it and learn how to use it by inspecting source code.
