@@ -26,41 +26,59 @@ class CommaSeparatedListOutputParser(BaseOutputParser[List[str]]):
     def parse(self, text: str) -> List[str]:
         """Parse the output of an LLM call."""
         return text.strip().split(", ")
-    
-def main():
+
+def run_server(llm_chain):
     try:
-        print(f"LangServe")
-        
-        # 1. Chain definition
-        template = """You are a helpful assistant who generates comma separated lists.
-        A user will pass in a category, and you should generate 5 objects in that category in a comma separated list.
-        ONLY return a comma separated list, and nothing more."""
-        human_template = "{text}"
-
-        chat_prompt = ChatPromptTemplate.from_messages([
-            ("system", template),
-            ("human", human_template),
-        ])
-
-        chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0.9)
-
-        category_chain = chat_prompt | chatllm | CommaSeparatedListOutputParser()
-
-        # 2. App definition
+        # App definition
         app = FastAPI(
         title="LangChain Server",
         version="1.0",
         description="A simple api server using Langchain's Runnable interfaces",
         )
 
-        # 3. Adding chain route
+        # Adding chain route
         add_routes(
             app,
-            category_chain,
-            path="/category_chain",
+            llm_chain,
+            path="/test_chain",
         )
 
+        # Run server
         uvicorn.run(app, host="localhost", port=8000)
+
+    except ValueError as ve:
+        return str(ve)
+
+
+def main():
+    try:
+        # Chain definition
+        chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0.9)
+        #print(chatllm.input_schema.schema())
+        #print(chatllm.output_schema.schema())
+
+        # Exmaple 1: Category Chain
+        #template = """You are a helpful assistant who generates comma separated lists.
+        #A user will pass in a category, and you should generate 5 objects in that category in a comma separated list.
+        #ONLY return a comma separated list, and nothing more."""
+        #human_template = "{text}"
+
+        #chat_prompt = ChatPromptTemplate.from_messages([
+        #    ("system", template),
+        #    ("human", human_template),
+        #])
+
+        #category_chain = chat_prompt | chatllm | CommaSeparatedListOutputParser()
+        #print(category_chain.input_schema.schema())
+        #print(category_chain.output_schema.schema())
+
+        #run_server(category_chain)
+
+        # Exmaple 2: Joke Chain
+        prompt = ChatPromptTemplate.from_template("tell me a joke about {text} in traditional chinese language")
+        joke_chain = prompt | chatllm
+        run_server(joke_chain)
+        
 
     except ValueError as ve:
         return str(ve)
