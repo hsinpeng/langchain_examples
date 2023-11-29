@@ -1,12 +1,77 @@
+import os
 import sys
 import time
+import asyncio
 import requests
 from langserve import RemoteRunnable
 
-def main():
-    try:
-        querystr = "love"
+os.environ["NO_PROXY"] = "localhost, 127.0.0.1"
 
+async def async_test():
+    print("######## Async Calls ########")
+     # RemoteRunnable initialization
+    remote_chain = RemoteRunnable("http://localhost:8000/test_chain/")
+    
+    try:
+        # aInvoke
+        print("----- AsyncInvoke -----")
+        start = time.perf_counter()
+        result = await remote_chain.ainvoke({"text": "Taiwan"})
+        end = time.perf_counter()
+        print(result.content)
+        print("----- AsyncInvoke exec-time: %f secs -----" % (end - start))
+
+        # aInvoke with task
+        print("----- AsyncInvoke with task -----")
+        task = asyncio.create_task(remote_chain.ainvoke({"text": "Love"}))
+        await asyncio.sleep(1) # MUST have for executing the task above
+
+        for i in range(5):
+            time.sleep(1)
+            print(i)
+
+        start = time.perf_counter()
+        result = await task
+        end = time.perf_counter()
+
+        print(result.content)
+        print("----- AsyncInvoke with task 執行時間：%f 秒 -----" % (end - start))
+
+        # Batch aInvoke
+        print("----- Batch AsyncInvoke -----")
+        job1 = remote_chain.ainvoke({"text": "Taipei"})
+        job2 = remote_chain.ainvoke({"text": "Taichung"})
+        job3 = remote_chain.ainvoke({"text": "Kaohsiung"})
+
+        start = time.perf_counter()
+        results = await asyncio.gather(job1, job2, job3)
+        end = time.perf_counter()
+
+        for ret in results:
+            print("output:")
+            print(ret.content)
+        print("----- Batch AsyncInvoke exec-time: %f secs -----" % (end - start))
+
+        # aBatch
+        print("----- AsyncBatch -----")
+        start = time.perf_counter()
+        results = await remote_chain.abatch([{"text": "Taipei"}, {"text": "Taichung"}, {"text": "Kaohsiung"}])
+        end = time.perf_counter()
+        for ret in results:
+            print("output:")
+            print(ret.content)
+        print("----- AsyncBatch exec-time: %f secs -----" % (end - start))
+
+    except ValueError as ve:
+        print(str(ve))
+        return str(ve)
+    
+
+def sync_test():
+    print("######## Sync Calls ########")
+    querystr = "love"
+    
+    try:
         # Python requests
         print("----- Python requests -----")
         start = time.perf_counter()
@@ -49,6 +114,18 @@ def main():
             print("output:")
             print(e.content)
         print("----- Batch exec-time: %f secs -----" % (end - start))
+    except ValueError as ve:
+        print(str(ve))
+        return str(ve)
+
+def main():
+    try:
+        # Sync
+        #sync_test()
+
+        # Async
+        #asyncio.run(async_test())
+        asyncio.get_event_loop().run_until_complete(async_test())
     
     except ValueError as ve:
         return str(ve)

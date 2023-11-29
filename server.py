@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import sys
 import json
 from typing import List
@@ -20,6 +21,8 @@ with open('param.json', 'r', encoding='utf-8') as param_file:
     azure_embd_deployment = param_data["azure_embd_deployment"]
 param_file.close()
 ####################################
+
+os.environ['NO_PROXY'] = 'localhost, 127.0.0.1'
 
 class CommaSeparatedListOutputParser(BaseOutputParser[List[str]]):
     """Parse the output of an LLM call to a comma-separated list."""
@@ -53,7 +56,7 @@ def run_server(llm_chain):
 def main():
     try:
         # Chain definition
-        chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0.9)
+        chatllm = AzureChatOpenAI(deployment_name=azure_gptx_deployment, openai_api_version=azure_apiversion, openai_api_key=azure_apikey, azure_endpoint=azure_apibase, temperature=0)
         #print(chatllm.input_schema.schema())
         #print(chatllm.output_schema.schema())
 
