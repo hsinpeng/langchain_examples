@@ -35,7 +35,7 @@ async def async_test():
         end = time.perf_counter()
 
         print(result.content)
-        print("----- AsyncInvoke with task exec-time: %f 秒 -----" % (end - start))
+        print("----- AsyncInvoke with task exec-time: %f secs -----" % (end - start))
 
         # Batch aInvoke
         print("----- Batch AsyncInvoke -----")
