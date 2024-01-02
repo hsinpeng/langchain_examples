@@ -1,131 +1,112 @@
 import os
 import sys
 import time
-import asyncio
-import requests
 from langserve import RemoteRunnable
 
 os.environ["NO_PROXY"] = "localhost, 127.0.0.1"
+test_option = 5
 
-async def async_test():
-    print("######## Async Calls ########")
-     # RemoteRunnable initialization
-    remote_chain = RemoteRunnable("http://localhost:8000/test_chain/")
+def api_test(option):
+    print("######## LangServe API Test ########")
     
     try:
-        # aInvoke
-        print("----- AsyncInvoke -----")
-        start = time.perf_counter()
-        result = await remote_chain.ainvoke({"text": "Taiwan"})
-        end = time.perf_counter()
-        print(result.content)
-        print("----- AsyncInvoke exec-time: %f secs -----" % (end - start))
-
-        # aInvoke with task
-        print("----- AsyncInvoke with task -----")
-        task = asyncio.create_task(remote_chain.ainvoke({"text": "Love"}))
-        await asyncio.sleep(1) # MUST have for executing the task above
-
-        for i in range(5):
-            time.sleep(1)
-            print(i)
-
-        start = time.perf_counter()
-        result = await task
-        end = time.perf_counter()
-
-        print(result.content)
-        print("----- AsyncInvoke with task exec-time: %f secs -----" % (end - start))
-
-        # Batch aInvoke
-        print("----- Batch AsyncInvoke -----")
-        job1 = remote_chain.ainvoke({"text": "Taipei"})
-        job2 = remote_chain.ainvoke({"text": "Taichung"})
-        job3 = remote_chain.ainvoke({"text": "Kaohsiung"})
-
-        start = time.perf_counter()
-        results = await asyncio.gather(job1, job2, job3)
-        end = time.perf_counter()
-
-        for ret in results:
-            print("output:")
-            print(ret.content)
-        print("----- Batch AsyncInvoke exec-time: %f secs -----" % (end - start))
-
-        # aBatch
-        print("----- AsyncBatch -----")
-        start = time.perf_counter()
-        results = await remote_chain.abatch([{"text": "Taipei"}, {"text": "Taichung"}, {"text": "Kaohsiung"}])
-        end = time.perf_counter()
-        for ret in results:
-            print("output:")
-            print(ret.content)
-        print("----- AsyncBatch exec-time: %f secs -----" % (end - start))
-
-    except ValueError as ve:
-        print(str(ve))
-        return str(ve)
-    
-
-def sync_test():
-    print("######## Sync Calls ########")
-    querystr = "love"
-    
-    try:
-        # Python requests
-        print("----- Python requests -----")
-        start = time.perf_counter()
-        response = requests.post(
-            "http://localhost:8000/test_chain/invoke/",
-            json={'input': {'text': querystr}}
-        )
-        end = time.perf_counter()
-        print(response.json()["output"]["content"])
-        print("----- Python requests exec-time: %f secs -----" % (end - start))
-        
-        # RemoteRunnable initialization
-        remote_chain = RemoteRunnable("http://localhost:8000/test_chain/")
-        
-        # Invoke
-        print("----- Invoke -----")
-        start = time.perf_counter()
-        result = remote_chain.invoke({"text": querystr})
-        end = time.perf_counter()
-        print(result.content)
-        print("----- Invoke exec-time: %f secs -----" % (end - start))
-
-        # Stream
-        print("----- Stream -----")
-        chk = True
-        start = time.perf_counter()
-        for s in remote_chain.stream({"text": querystr}):
-            print(s.content, end="", flush=True)
-            if chk:
+        match option:
+            case 0:
+                print('Just Test!')
+            case 1:
+                print("----- Query (Chat without history) -----")
+                remote_chain = RemoteRunnable("http://localhost:8000/query/")
+                start = time.perf_counter()
+                result = remote_chain.invoke({"question": "How to cycling around Taiwan?"})
                 end = time.perf_counter()
-                chk = False
-        print("\n----- Stream response-time: %f secs -----" % (end - start))
+                print(result.content)
+                print("----- Query exec-time: %f secs -----" % (end - start))
+            case 2:
+                print("----- Chat with history -----")
+                remote_chain = RemoteRunnable("http://localhost:8000/chat/")
+                start = time.perf_counter()
+                result = remote_chain.invoke(
+                    {"question": "What is the current US president?"},
+                    config={"configurable": {"session_id": "foobar"}},
+                )
+                end = time.perf_counter()
+                print(result.content)
+                print("----- Chat 1 exec-time: %f secs -----" % (end - start))
 
-        # Batch
-        print("----- Batch -----")
-        start = time.perf_counter()
-        results = remote_chain.batch([{"text": querystr}, {"text": querystr}])
-        end = time.perf_counter()
-        for e in results:
-            print("output:")
-            print(e.content)
-        print("----- Batch exec-time: %f secs -----" % (end - start))
+                start = time.perf_counter()
+                result = remote_chain.invoke(
+                    {"question": "How old is he?"},
+                    config={"configurable": {"session_id": "foobar"}},
+                )
+                end = time.perf_counter()
+                print(result.content)
+                print("----- Chat 2 exec-time: %f secs -----" % (end - start))
+            case 3:
+                print("----- Cypher Generator -----")
+                neo_schema = """
+                Node properties are the following:
+                Movie {name: STRING},Actor {name: STRING}
+                Relationship properties are the following:
+
+                The relationships are the following:
+                (:Actor)-[:ACTED_IN]->(:Movie)
+                """
+                remote_chain = RemoteRunnable("http://localhost:8000/cypher/")
+                start = time.perf_counter()
+                result = remote_chain.invoke({"neo4j_schema": neo_schema, "question": "Who played in Top Gun?"})
+                end = time.perf_counter()
+                print(result.content)
+                print("----- Cypher Gen exec-time: %f secs -----" % (end - start))
+            case 4:
+                print("--- Chat with obliged knowledge ---")
+                print("Step 1: Get History and Knowledge")
+                chat_session_id = "id_obliged"
+                remote_chain = RemoteRunnable("http://localhost:8000/get_history/")
+                history_messages = remote_chain.invoke({"session_id": chat_session_id})
+                print(history_messages)
+                
+                print("Step 2: Ask Question with History and Knowledge (Note: Streamable)")
+                human_question = "Who is Taipei city mayor?"
+                required_language = "Traditional Chinese"
+                given_knowledge = ""
+                remote_chain = RemoteRunnable("http://localhost:8000/custom_obliged_query/")
+                ai_answer = remote_chain.invoke({"history": history_messages, "language": required_language, "knowledge": given_knowledge, "question": human_question})
+                print(ai_answer)
+
+                print("Step 3: Save the Latest Question and Answer")
+                remote_chain = RemoteRunnable("http://localhost:8000/save_history/")
+                result = remote_chain.invoke({"session_id": chat_session_id, "question": human_question, "answer": ai_answer})
+                print(result)
+            case 5:
+                print("--- Chat with referential knowledge ---")
+                print("Step 1: Get History and Knowledge")
+                chat_session_id = "id_referential"
+                remote_chain = RemoteRunnable("http://localhost:8000/get_history/")
+                history_messages = remote_chain.invoke({"session_id": chat_session_id})
+                print(history_messages)
+                
+                print("Step 2: Ask Question with History and Knowledge (Note: Streamable)")
+                human_question = "Who is Tokyo city mayor?"
+                required_language = "Traditional Chinese"
+                given_knowledge = ""
+                remote_chain = RemoteRunnable("http://localhost:8000/custom_referential_query/")
+                ai_answer = remote_chain.invoke({"history": history_messages, "language": required_language, "knowledge": given_knowledge, "question": human_question})
+                print(ai_answer)
+
+                print("Step 3: Save the Latest Question and Answer")
+                remote_chain = RemoteRunnable("http://localhost:8000/save_history/")
+                result = remote_chain.invoke({"session_id": chat_session_id, "question": human_question, "answer": ai_answer})
+                print(result)
+            case _:
+                print('Error: Wrong option!')
+
     except ValueError as ve:
         print(str(ve))
         return str(ve)
 
 def main():
     try:
-        # Sync
-        #sync_test()
-
-        # Async
-        #asyncio.run(async_test())
-        asyncio.get_event_loop().run_until_complete(async_test())
+        api_test(test_option)
     
     except ValueError as ve:
         return str(ve)
