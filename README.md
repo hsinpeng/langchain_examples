@@ -19,12 +19,15 @@ cd langchain_examples
 Note: Before using this project, you have to set and get these parameter from Azure AI service.
 ```text=
 {
+    "hostname": "Please, do it by yourself",
+    "hostport": "Please, do it by yourself",
     "azure_apikey" : "Please, do it by yourself", 
     "azure_apibase"  : "Please, do it by yourself",
     "azure_apitype" : "azure",
     "azure_apiversion" : "2023-05-15",
     "azure_gptx_deployment" : "Please, do it by yourself",
-    "azure_embd_deployment" : "Please, do it by yourself"
+    "azure_embd_deployment" : "Please, do it by yourself",
+    "redis_url": "Please, do it by yourself"
 }
 ```
 
