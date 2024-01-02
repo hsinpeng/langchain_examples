@@ -41,6 +41,7 @@ python3 -m pip install --no-cache-dir -U wikipedia
 python3 -m pip install --no-cache-dir -U rank_bm25
 python3 -m pip install --no-cache-dir -U lark
 python3 -m pip install --no-cache-dir -U "langserve[all]"
+python3 -m pip install --no-cache-dir -U redis
 ```
 
 5. The main program is 'test.py', check it and learn how to use it by inspecting source code.
