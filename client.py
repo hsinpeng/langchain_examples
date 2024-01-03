@@ -8,7 +8,8 @@ test_option = 5
 
 def api_test(option):
     print("######## LangServe API Test ########")
-    
+    required_language = "Traditional Chinese"
+    chat_session_id = "sid_test000"
     try:
         match option:
             case 0:
@@ -17,9 +18,9 @@ def api_test(option):
                 print("----- Query (Chat without history) -----")
                 remote_chain = RemoteRunnable("http://localhost:8000/query/")
                 start = time.perf_counter()
-                result = remote_chain.invoke({"question": "How to cycling around Taiwan?"})
+                result = remote_chain.invoke({"question": "How to cycling around Taiwan?", "language": required_language})
                 end = time.perf_counter()
-                print(result.content)
+                print(result)
                 print("----- Query exec-time: %f secs -----" % (end - start))
             case 2:
                 print("----- Chat with history -----")
@@ -27,19 +28,19 @@ def api_test(option):
                 start = time.perf_counter()
                 result = remote_chain.invoke(
                     {"question": "What is the current US president?"},
-                    config={"configurable": {"session_id": "foobar"}},
+                    config={"configurable": {"session_id": chat_session_id}},
                 )
                 end = time.perf_counter()
-                print(result.content)
+                print(result)
                 print("----- Chat 1 exec-time: %f secs -----" % (end - start))
 
                 start = time.perf_counter()
                 result = remote_chain.invoke(
                     {"question": "How old is he?"},
-                    config={"configurable": {"session_id": "foobar"}},
+                    config={"configurable": {"session_id": chat_session_id}},
                 )
                 end = time.perf_counter()
-                print(result.content)
+                print(result)
                 print("----- Chat 2 exec-time: %f secs -----" % (end - start))
             case 3:
                 print("----- Cypher Generator -----")
@@ -55,19 +56,17 @@ def api_test(option):
                 start = time.perf_counter()
                 result = remote_chain.invoke({"neo4j_schema": neo_schema, "question": "Who played in Top Gun?"})
                 end = time.perf_counter()
-                print(result.content)
+                print(result)
                 print("----- Cypher Gen exec-time: %f secs -----" % (end - start))
             case 4:
                 print("--- Chat with obliged knowledge ---")
                 print("Step 1: Get History and Knowledge")
-                chat_session_id = "id_obliged"
                 remote_chain = RemoteRunnable("http://localhost:8000/get_history/")
                 history_messages = remote_chain.invoke({"session_id": chat_session_id})
                 print(history_messages)
                 
                 print("Step 2: Ask Question with History and Knowledge (Note: Streamable)")
                 human_question = "Who is Taipei city mayor?"
-                required_language = "Traditional Chinese"
                 given_knowledge = ""
                 remote_chain = RemoteRunnable("http://localhost:8000/custom_obliged_query/")
                 ai_answer = remote_chain.invoke({"history": history_messages, "language": required_language, "knowledge": given_knowledge, "question": human_question})
@@ -80,7 +79,6 @@ def api_test(option):
             case 5:
                 print("--- Chat with referential knowledge ---")
                 print("Step 1: Get History and Knowledge")
-                chat_session_id = "id_referential"
                 remote_chain = RemoteRunnable("http://localhost:8000/get_history/")
                 history_messages = remote_chain.invoke({"session_id": chat_session_id})
                 print(history_messages)

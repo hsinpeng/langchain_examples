@@ -84,22 +84,22 @@ def main():
 
         # API 1: General query (without chat history)
         query_prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a helpful chatbot"),
+            ("system", "You are a helpful chatbot. Try to answer in {language}"),
             ("human", "{question}"),
         ])
 
-        query_chain = query_prompt | chatllm
+        query_chain = query_prompt | chatllm | output_parser
         
         # API 2: General chat (with history)
         chat_history_prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", "You are a helpful chatbot"),
+                ("system", "You are a helpful chatbot."),
                 MessagesPlaceholder(variable_name="history"),
                 ("human", "{question}"),
             ]
         )
 
-        chat_history_chain = chat_history_prompt | chatllm
+        chat_history_chain = chat_history_prompt | chatllm | output_parser
        
         chat_chain = RunnableWithMessageHistory(
             chat_history_chain,
@@ -136,7 +136,7 @@ def main():
                 "db_schema": itemgetter("db_schema"),
                 "question": itemgetter("question"),
             }
-            | CYPHER_GENERATION_PROMPT | chatllm
+            | CYPHER_GENERATION_PROMPT | chatllm | output_parser
         )
 
         # API 4: History Retrieve
